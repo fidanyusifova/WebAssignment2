@@ -126,6 +126,27 @@ function changePage(pageNumber) {
   updatePagination(currentPage, totalPageCount);
 }
 
+
+function filterByCategory() {
+  const categoryFilter = document.getElementById("categoryFilter");
+  const selectedCategory = categoryFilter.value;
+
+  // Filter products based on the selected category
+  const filteredProducts = productsData.products.filter(product => {
+    return selectedCategory === 'all' || product.category === selectedCategory;
+  });
+
+  // Update the total page count based on filtered products
+  totalPageCount = Math.ceil(filteredProducts.length / itemsPerPage);
+
+  // Display the filtered products on the current page
+  displayProducts(currentPage, { products: filteredProducts });
+
+  // Update pagination based on the new total page count
+  updatePagination(currentPage, totalPageCount);
+}
+
+let originalTotalPageCount;
 let productsData; // Declare a variable to store the fetched data
 let totalPageCount;
 
@@ -137,22 +158,6 @@ fetch("https://dummyjson.com/products")
     displayProducts(currentPage, data);
     updatePagination(currentPage, totalPageCount);
 });
-
-
-
-// Define a variable to store the original total page count
-let originalTotalPageCount;
-
-// Fetch the data and set the original total page count
-fetch("https://dummyjson.com/products")
-  .then((res) => res.json())
-  .then((data) => {
-    productsData = data;
-    originalTotalPageCount = Math.ceil(data.products.length / itemsPerPage);
-    displayProducts(currentPage, data);
-    updatePagination(currentPage, totalPageCount);
-  });
-
 
 searchInput.addEventListener("keyup", function () {
   const searchInput = document.getElementById("searchInput");
