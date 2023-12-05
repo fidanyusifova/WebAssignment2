@@ -140,15 +140,37 @@ fetch("https://dummyjson.com/products")
 
 
 
+// Define a variable to store the original total page count
+let originalTotalPageCount;
+
+// Fetch the data and set the original total page count
+fetch("https://dummyjson.com/products")
+  .then((res) => res.json())
+  .then((data) => {
+    productsData = data;
+    originalTotalPageCount = Math.ceil(data.products.length / itemsPerPage);
+    displayProducts(currentPage, data);
+    updatePagination(currentPage, totalPageCount);
+  });
 
 
-function filterByCategory() {
-  const categoryFilter = document.getElementById("categoryFilter");
-  const selectedCategory = categoryFilter.value;
+searchInput.addEventListener("keyup", function () {
+  const searchInput = document.getElementById("searchInput");
+  const searchTerm = searchInput.value.toLowerCase();
 
-  // Filter products based on the selected category
-  const filteredProducts = productsData.products.filter(product => {
-    return selectedCategory === 'all' || product.category === selectedCategory;
+  // Check if the search term is empty
+  if (searchTerm === "") {
+    // Display all products using the original total page count
+    displayProducts(currentPage, productsData);
+    updatePagination(currentPage, originalTotalPageCount);
+    return;
+  }
+
+  // Filter all products based on the search term
+  const allProducts = productsData.products;
+  const filteredProducts = allProducts.filter((product) => {
+    const title = product.title.toLowerCase();
+    return title.includes(searchTerm);
   });
 
   // Update the total page count based on filtered products
@@ -159,32 +181,4 @@ function filterByCategory() {
 
   // Update pagination based on the new total page count
   updatePagination(currentPage, totalPageCount);
-}
-
-
-
-function searchProducts() {
-  const searchInput = document.getElementById("searchInput");
-  const searchTerm = searchInput.value.toLowerCase();
-
-  // Get the currently displayed filtered products
-  const displayedProducts = Array.from(productsContainer.getElementsByClassName("product"));
-  
-  // Filter displayed products based on the search term
-  const filteredProducts = displayedProducts.filter(productElement => {
-    const title = productElement.querySelector(".title").innerText.toLowerCase();
-    return title.includes(searchTerm);
-  });
-
-  // Update the total page count based on filtered products
-  totalPageCount = Math.ceil(filteredProducts.length / itemsPerPage);
-
-  // Convert the filtered products to HTML strings
-  const filteredProductsHTML = filteredProducts.map(productElement => productElement.outerHTML);
-
-  // Display the filtered products on the current page
-  productsContainer.innerHTML = filteredProductsHTML.slice(0, itemsPerPage).join('');
-
-  // Update pagination based on the new total page count
-  updatePagination(currentPage, totalPageCount);
-}
+});
